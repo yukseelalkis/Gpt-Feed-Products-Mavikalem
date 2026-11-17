@@ -1,0 +1,22 @@
+name: ChatGPT feed
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # 6 saatte bir
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency: { group: pages, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: { name: github-pages }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: mkdir -p public && python convert.py "https://www.mavikalem.com.tr/output/8087119590" public/feed.tsv
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: public }
+      - uses: actions/deploy-pages@v4
